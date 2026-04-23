@@ -1,0 +1,9 @@
+[Unit]
+Description=Restrict ssh.socket to @PRIVATE_IFACE@ (safe-server lockdown)
+After=tailscaled.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/sys/class/net/@PRIVATE_IFACE@
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/safe-server-lockdown

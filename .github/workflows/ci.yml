@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  lint:
+    name: shellcheck + shfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shfmt
+        run: |
+          curl -sSL https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -s https://api.github.com/repos/mvdan/sh/releases/latest | grep tag_name | cut -d '"' -f4)_linux_amd64 -o /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
+
+      - name: shellcheck
+        run: |
+          shellcheck \
+            install.sh \
+            uninstall.sh \
+            bin/safe-server-lockdown \
+            bin/safe-server-healthcheck \
+            tests/smoke.sh
+
+      - name: shfmt
+        run: |
+          shfmt -d \
+            install.sh \
+            uninstall.sh \
+            bin/safe-server-lockdown \
+            bin/safe-server-healthcheck \
+            tests/smoke.sh
+
+  smoke:
+    name: smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run smoke tests
+        run: bash tests/smoke.sh

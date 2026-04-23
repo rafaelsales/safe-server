@@ -1,0 +1,8 @@
+[Unit]
+Description=Verify outbound tunnels are healthy (safe-server)
+After=tailscaled.service cloudflared.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/safe-server-healthcheck

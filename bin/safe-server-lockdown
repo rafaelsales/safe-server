@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+CONFIG=/etc/safe-server/config.env
+# shellcheck source=/dev/null
+[[ -f $CONFIG ]] && source "$CONFIG"
+
+PRIVATE_IFACE="${SAFE_SERVER_PRIVATE_IFACE:-tailscale0}"
+
+# Refuse to lock down if private interface is absent — prevents total lockout.
+if ! ip link show "$PRIVATE_IFACE" >/dev/null 2>&1; then
+  echo "safe-server-lockdown: $PRIVATE_IFACE missing; aborting SSH lockdown to avoid lockout" >&2
+  exit 1
+fi
+
+install -d -m 0755 /run/systemd/system/ssh.socket.d
+cat > /run/systemd/system/ssh.socket.d/safe-server.conf <<EOF
+[Socket]
+BindToDevice=$PRIVATE_IFACE
+EOF
+
+systemctl daemon-reload
+systemctl restart ssh.socket
+
+echo "safe-server-lockdown: ssh.socket restricted to $PRIVATE_IFACE"

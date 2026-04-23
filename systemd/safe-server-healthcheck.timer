@@ -1,0 +1,10 @@
+[Unit]
+Description=Run safe-server healthcheck every 5 minutes
+
+[Timer]
+OnActiveSec=5min
+OnUnitActiveSec=5min
+Unit=safe-server-healthcheck.service
+
+[Install]
+WantedBy=timers.target

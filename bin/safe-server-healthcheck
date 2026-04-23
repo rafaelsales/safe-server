@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+
+CONFIG=/etc/safe-server/config.env
+# shellcheck source=/dev/null
+[[ -f $CONFIG ]] && source "$CONFIG"
+
+PRIVATE_IFACE="${SAFE_SERVER_PRIVATE_IFACE:-tailscale0}"
+FAIL=0
+
+log() { echo "safe-server-healthcheck: $*"; }
+fail() { log "FAIL: $*" >&2; FAIL=1; }
+
+# 1. Tailscale: daemon active and interface has an address
+if ! systemctl is-active --quiet tailscaled 2>/dev/null; then
+  fail "tailscaled is not active"
+elif ! ip addr show "$PRIVATE_IFACE" 2>/dev/null | grep -q 'inet '; then
+  fail "$PRIVATE_IFACE has no IP address — Tailscale may not be connected"
+else
+  log "OK: tailscaled active, $PRIVATE_IFACE has IP"
+fi
+
+# 2. Cloudflare Tunnel: daemon active (if installed)
+if command -v cloudflared >/dev/null 2>&1; then
+  if ! systemctl is-active --quiet cloudflared 2>/dev/null; then
+    fail "cloudflared is not active"
+  else
+    # Check the metrics endpoint if it's reachable (port 2000 is cloudflared default)
+    if curl -sf --max-time 5 http://127.0.0.1:2000/ready >/dev/null 2>&1; then
+      log "OK: cloudflared active and ready"
+    else
+      log "OK: cloudflared active (metrics endpoint not reachable, tunnel may still work)"
+    fi
+  fi
+else
+  log "INFO: cloudflared not installed; skipping Cloudflare Tunnel check"
+fi
+
+if [[ $FAIL -ne 0 ]]; then
+  log "One or more checks failed. Recovery: reboot to restore the public SSH grace window."
+  exit 1
+fi
+
+log "All checks passed."

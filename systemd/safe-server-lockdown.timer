@@ -1,0 +1,9 @@
+[Unit]
+Description=Close public SSH @GRACE_MINUTES@ minutes after timer activation (safe-server)
+
+[Timer]
+OnActiveSec=@GRACE_MINUTES@min
+Unit=safe-server-lockdown.service
+
+[Install]
+WantedBy=timers.target
