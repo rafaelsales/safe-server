@@ -5,23 +5,17 @@ ongoing SSH access after the grace window closes.
 
 ## Install
 
-```bash
-curl -fsSL https://tailscale.com/install.sh | sh
-```
+Follow the [official Linux instructions](https://tailscale.com/docs/install/linux).
 
 ## Connect to your tailnet
 
 ```bash
-sudo tailscale up
+sudo tailscale up --ssh
 ```
-
-No `--ssh` flag needed. safe-server uses standard SSH keys over the Tailscale
-interface; Tailscale SSH is a separate feature and is not required.
 
 ## Verify the interface
 
 ```bash
-ip link show tailscale0
 ip addr show tailscale0
 ```
 
@@ -42,9 +36,5 @@ ssh ubuntu@<tailscale-ip>
 ssh ubuntu@<machine-hostname>
 ```
 
-Only proceed with `sudo ./install.sh` after this test succeeds.
-
-## Enable exit node or subnet routes (optional)
-
-Not required for safe-server to function. Tailscale's documentation covers
-these advanced features at https://tailscale.com/kb/.
+Only proceed with `sudo ./install.sh` after this test succeeds — it's your
+fallback if public SSH closes.

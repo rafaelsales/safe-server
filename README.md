@@ -35,61 +35,11 @@ state.
 
 ### 1. Tailscale (private SSH access)
 
-Install following the [official Linux instructions](https://tailscale.com/docs/install/linux), then connect to your tailnet with SSH enabled:
-
-```bash
-sudo tailscale up --ssh
-```
-
-Verify the interface is up and has an IP before proceeding:
-
-```bash
-ip addr show tailscale0
-```
-
-From a **different machine on the same tailnet**, confirm SSH works via the Tailscale IP or MagicDNS name:
-
-```bash
-ssh ubuntu@<tailscale-ip>
-```
-
-Only continue once this succeeds — it's your fallback if public SSH closes.
+See [tunnels/tailscale-setup.md](tunnels/tailscale-setup.md). Set up and verify SSH over Tailscale before proceeding — it's your fallback once public SSH closes.
 
 ### 2. Cloudflare Tunnel (outbound HTTP/HTTPS)
 
-Download and install `cloudflared` from the [official downloads page](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/#linux).
-
-Authenticate with your Cloudflare account:
-
-```bash
-cloudflared tunnel login
-```
-
-Create a tunnel and configure ingress rules:
-
-```bash
-cloudflared tunnel create my-server
-```
-
-Create `/etc/cloudflared/config.yml`:
-
-```yaml
-tunnel: <tunnel-uuid>
-credentials-file: /root/.cloudflared/<tunnel-uuid>.json
-
-ingress:
-  - hostname: app.yourdomain.com
-    service: http://localhost:3000
-  - service: http_status:404
-```
-
-Add DNS records and run as a service:
-
-```bash
-cloudflared tunnel route dns my-server app.yourdomain.com
-sudo cloudflared service install
-sudo systemctl enable --now cloudflared
-```
+See [tunnels/cloudflared-setup.md](tunnels/cloudflared-setup.md).
 
 ## Install
 

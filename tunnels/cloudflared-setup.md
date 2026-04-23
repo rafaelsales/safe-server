@@ -11,14 +11,7 @@ edge and Cloudflare proxies public traffic back over it.
 
 ## Install cloudflared
 
-```bash
-# Debian / Ubuntu
-curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg \
-  | sudo gpg --dearmor -o /usr/share/keyrings/cloudflare-main.gpg
-echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" \
-  | sudo tee /etc/apt/sources.list.d/cloudflared.list
-sudo apt-get update && sudo apt-get install -y cloudflared
-```
+Download and install `cloudflared` from the [official Linux downloads page](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/#linux).
 
 ## Authenticate with Cloudflare
 
